@@ -1659,7 +1659,7 @@ zOrig = data.ANALYZE.zDataOrig;
 xarr = abs(xarr);
 yarr = abs(yarr);
 
-figure('Name', data.ANALYZE.filename,'NumberTitle','off');
+f2D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 
 if get(findobj('Tag', 'ANALYZE_Locset_display2D_1'), 'Value');
     
@@ -1692,6 +1692,7 @@ else
     ans = [];
     pause on;
     pause;
+    figure(f2D);
     pause off;
     
     % Take the new variable containing the points and replot
@@ -1768,7 +1769,7 @@ yarr = abs(yarr);
 % xarr = xarr - min(min(xarr));
 % yarr = yarr - min(min(yarr));
 
-figure('Name', data.ANALYZE.filename,'NumberTitle','off');
+f3D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 % Plot the points
 h3D = plot3(xarr, yarr, zarr, '+r');
 rotate3d on
@@ -1776,6 +1777,7 @@ title('Select points to include and press any key.');
 ans = [];
 pause on;
 pause;
+figure(f3D)
 pause off;
 
 % Take the new variable containing the points and replot

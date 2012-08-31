@@ -169,6 +169,20 @@ hTrackingPanel = uibuttongroup(...
     'BackgroundColor',get(hObject,'Color'),...
     'Position',[x2 y2+filtHeight+delim panelWidth/2-delim trackHeight]);
 uiTrackingPanel(hTrackingPanel, 0, fontsize, font);
+% Disclaimer text
+uicontrol(...
+    'Parent',hObject,...
+    'Style','text',...
+    'Units','pixels',...
+    'BackgroundColor',get(findobj('Tag','hSMT'),'Color'),...
+    'FontSize',30,...
+    'HorizontalAlignment','left',...
+    'String','Tracking should be done through the Analyze GUI',...
+    'FontName', font,...%'Brush Script MT' ,...
+    'ForegroundColor', [0.55 0.55 0.55],...
+    'HorizontalAlignment', 'center',...
+    'Position',[x2 y2+filtHeight+delim panelWidth/2-delim trackHeight]);
+
 
 % Visualise Panel
 hVisualisePanel = uibuttongroup(...
@@ -2614,7 +2628,7 @@ for posf = startVal:2:stopVal
             surf(peak, 'FaceAlpha', 0.6);
             shading interp;
             mesh(fit.G, 'LineWidth', 2.0, 'EdgeColor', 'k', 'FaceColor', 'none');
-            rotate3D on;
+            rotate3d on;
             view(3);
             hold off
         end
@@ -2712,7 +2726,7 @@ zOrig = data.LOCALIZE.zDataOrig;
 xarr = abs(xarr);
 yarr = abs(yarr);
 
-figure;
+f2D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 
 if get(findobj('Tag', 'LOCALIZE_Visset_display2D_1'), 'Value');
     
@@ -2746,6 +2760,7 @@ else
     ans = [];
     pause on;
     pause;
+    figure(f2D);
     pause off;
     
     % Take the new variable containing the points and replot
@@ -2825,7 +2840,7 @@ yarr = abs(yarr);
 % xarr = xarr - min(min(xarr));
 % yarr = yarr - min(min(yarr));
 
-figure;
+f3D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 % Plot the points
 h3D = plot3(xarr, yarr, zarr, '+r');
 rotate3d on
@@ -2833,6 +2848,7 @@ title('Select points to include and press any key.');
 ans = [];
 pause on;
 pause;
+figure(f3D);
 pause off;
 
 % Take the new variable containing the points and replot
