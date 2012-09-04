@@ -2103,7 +2103,7 @@ finalTraj = {};
 lHist = [];
 
 % Remove empty trajectories and plot all of them
-figure('Name', data.ANALYZE.filename,'NumberTitle','off');;
+figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 hold on
 color = {'-r' '-b' '-k' '-g' '-m' '-c'};
 i = 1;
