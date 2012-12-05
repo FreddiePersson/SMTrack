@@ -4,7 +4,7 @@ trajName = strcat('Exp', num2str(expNr), '_Traj_Pos', num2str(posNr));
 stepName = strcat('Exp', num2str(expNr), '_slXY_Pos', num2str(posNr));
 
 W = evalin('base','whos');
-existsInWS = ismember(trajName, [W(:).name]);
+existsInWS = ismember(trajName, {W(:).name});
 
 if existsInWS
     trajs = evalin('base', trajName);

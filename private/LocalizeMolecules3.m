@@ -2462,9 +2462,10 @@ for posf = startVal:2:stopVal
         if get(findobj('Tag', 'LOCALIZE_Locset_fitSingle_0'), 'Value');
             figure;
             hold on
-            surf(peak, 'FaceAlpha', 0.6);
+            surf(peak, 'FaceAlpha', 0.7);%, 'EdgeColor', 'b', 'EdgeAlpha', 0.7, 'FaceColor', 'w',  'FaceAlpha', 0.7);
             shading interp;
-            mesh(fit.G, 'LineWidth', 2.0, 'EdgeColor', 'k', 'FaceColor', 'none');
+            surf(fit.G, 'LineWidth', 1.5, 'EdgeColor', 'k', 'FaceColor', 'w',  'FaceAlpha', 0.3, 'EdgeAlpha', 0.3);
+            
             rotate3d on;
             view(3);
             hold off
@@ -2563,7 +2564,7 @@ zOrig = data.LOCALIZE.zDataOrig;
 xarr = abs(xarr);
 yarr = abs(yarr);
 
-f2D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
+f2D=figure('Name', data.LOCALIZE.filename,'NumberTitle','off');
 
 if get(findobj('Tag', 'LOCALIZE_Visset_display2D_1'), 'Value');
     
@@ -2677,7 +2678,7 @@ yarr = abs(yarr);
 % xarr = xarr - min(min(xarr));
 % yarr = yarr - min(min(yarr));
 
-f3D=figure('Name', data.ANALYZE.filename,'NumberTitle','off');
+f3D=figure('Name', data.LOCALIZE.filename,'NumberTitle','off');
 % Plot the points
 h3D = plot3(xarr, yarr, zarr, '+r');
 rotate3d on
@@ -3788,7 +3789,7 @@ else
     % Inactivate and get the calibration variables from the GUI and
     % let the other variables stand as is but invisible.
     if nargin ~= 1
-    set(findobj('Tag', 'LOCALIZE_Locset_3D_0'), 'Value', 0);
+        set(findobj('Tag', 'LOCALIZE_Locset_3D_0'), 'Value', 0);
     end
     data.LOCALIZE.cal3DPath = get(findobj('Tag', 'LOCALIZE_Locset_cal3DPath_0'), 'String');
     data.LOCALIZE.xCal3D = [str2double(get(findobj('Tag', 'LOCALIZE_Locset_3DcalX_1'), 'String')),...

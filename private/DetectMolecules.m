@@ -1332,7 +1332,7 @@ end
 
 function SaveMATButton(~,varargin)
 
-% FIlter and prepp the whole stack
+% Filter and prepp the whole stack
 AdjustImage('all');
 
 % Load data structure
@@ -1366,7 +1366,7 @@ if exist(full_filename) == 2
     delete(full_filename);
 end
 
-finalStack = zeros(size(filtData, 1), size(filtData, 2), size(filtData, 3).*2);
+finalStack = zeros(size(filtData, 1), size(filtData, 2), size(filtData, 3).*2+1);
 
 % Get ROI selected data region
 roi = filtData(s(2):s(2)+s(4)-1,s(1):s(1)+s(3)-1, :);
@@ -1994,6 +1994,11 @@ else
     [rawData, timeBetweenFrames] = readSTK(full_filename);
     stackSize = size(rawData, 3);
     data.DETECT.timeBetweenFrames = timeBetweenFrames;
+end
+
+if stackSize==1
+    rawData(:, :, 2) = zeros(size(rawData(:, :, 1)));
+    stackSize = 2;
 end
 
 filtData = rawData;

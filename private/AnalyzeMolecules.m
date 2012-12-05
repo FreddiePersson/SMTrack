@@ -1412,6 +1412,22 @@ uicontrol(...	% Value edit box
     'Callback',{},...
     'Position',[x7+20 y2-6 ew lh]);
 
+% Overlay
+uicontrol(...	% Checkbox
+    'Parent',hObject,...
+    'Style','checkbox',...
+    'Units','pixels',...
+    'BackgroundColor',get(findobj('Tag','hSMT'),'Color'),...
+    'FontSize',varargin{end-1},...
+    'TooltipString','Choose if you want to overlay the results on an image.',...
+    'String','Overlay',...
+    'FontName', varargin{end} ,...
+    'Position',[x6 y3 lw lh],...
+    'Callback',{},...
+    'Tag','ANALYZE_Trackset_overlay_1',...
+    'Value', 0,...
+    'Enable','on');
+
 
 % Show trajectory length histogram
 uicontrol(...	% Checkbox
@@ -1674,6 +1690,7 @@ if get(findobj('Tag', 'ANALYZE_Locset_display2D_1'), 'Value');
     % Display it
     hold on
     imagesc(flipud(frame));
+%     imagesc(frame);
     colormap(gray);
     plot(unscaled(xarr)+1, unscaled(yarr)+1, '+r');
     rotate3d on
@@ -2016,14 +2033,14 @@ frameNr = data.ANALYZE.frameNumOrig(activeInd);
 maxDist = str2double(get(findobj('Tag', 'ANALYZE_Trackset_maxDist_1'), 'String'));
 
 firstTrajFrame = 0;
-traj = cell(1, floor((max(frameNr)-min(frameNr))/2));
+traj = cell(1, max(frameNr)*100);%floor((max(frameNr)-min(frameNr))/2));
 lastTrajNr = 0;
 
-nextHash = zeros(50,1);
+nextHash = zeros(1000,1);
 
 for i = min(frameNr):max(frameNr)
     lastHash = nextHash;
-    nextHash = zeros(50,1);
+    nextHash = zeros(1000,1);
     currInd = find(frameNr == i);
     nextInd = find(frameNr == i+1);
     if ~isempty(currInd) && ~isempty(nextInd)
@@ -2055,7 +2072,7 @@ for i = min(frameNr):max(frameNr)
         for ii = 1:size(nextPos, 1)
             singleCurr = D(:, ii);
             match = singleCurr<=maxDist;
-            
+            %ii
             if ((length(find(match)) > 1) || (isempty(find(match, 1)))) && (nextHash(ii) == 0)
                 % Start new trajectories in this frame
                 lastTrajNr = lastTrajNr+1;
@@ -2106,24 +2123,63 @@ lHist = [];
 figure('Name', data.ANALYZE.filename,'NumberTitle','off');
 hold on
 color = {'-r' '-b' '-k' '-g' '-m' '-c'};
-i = 1;
-for ind=1:length(traj)
-    tempTraj = traj{ind};
-    if ~isempty(tempTraj) && size(tempTraj, 1) >= str2double(get(findobj('Tag', 'ANALYZE_Trackset_minPoints_1'), 'String'))
-        finalTraj{end+1} = tempTraj;
-        lHist = [lHist, size(tempTraj, 1)];
-        plot(tempTraj(:, 1), tempTraj(:, 2), color{i});
-        i = i+1;
-        if i > 6
-            i = 1;
+
+
+if get(findobj('Tag', 'ANALYZE_Trackset_overlay_1'), 'Value');
+    
+    %Read in a file
+    [filename, pathname] = uigetfile('*.tif', 'Select BF image file (TIF)');
+    if ( filename == 0 )
+        disp('Error! No (or wrong) file selected!')
+        return
+    end
+    frame = double(imread([ pathname, filename ]));
+    
+    % Display it
+    imagesc(flipud(frame));
+%     imagesc(frame);
+    colormap(gray);
+    
+    i = 1;
+    for ind=1:length(traj)
+        tempTraj = traj{ind};
+        if ~isempty(tempTraj) && size(tempTraj, 1) >= str2double(get(findobj('Tag', 'ANALYZE_Trackset_minPoints_1'), 'String'))
+            finalTraj{end+1} = tempTraj;
+            lHist = [lHist, size(tempTraj, 1)];
+            plot(unscaled(tempTraj(:, 1))+1, unscaled(tempTraj(:, 2))+1, color{i}, 'LineWidth', 0.8);
+            i = i+1;
+            if i > 6
+                i = 1;
+            end
         end
     end
+    title('Trajectories overlay');
+    axis([0 size(frame, 2) 0 size(frame, 1)]);
+    xlabel('X [pix]');
+    ylabel('Y [pix]');
+    axis equal
+    hold off
+    
+else
+    i = 1;
+    for ind=1:length(traj)
+        tempTraj = traj{ind};
+        if ~isempty(tempTraj) && size(tempTraj, 1) >= str2double(get(findobj('Tag', 'ANALYZE_Trackset_minPoints_1'), 'String'))
+            finalTraj{end+1} = tempTraj;
+            lHist = [lHist, size(tempTraj, 1)];
+            plot(tempTraj(:, 1), tempTraj(:, 2), color{i});
+            i = i+1;
+            if i > 6
+                i = 1;
+            end
+        end
+    end
+    title('Trajectories');
+    xlabel('X [nm]');
+    ylabel('Y [nm]');
+    axis equal
+    hold off
 end
-title('Trajectories');
-xlabel('X [nm]');
-ylabel('Y [nm]');
-axis equal
-hold off
 
 assignin('base', 'finalTraj', finalTraj);
 
@@ -2136,6 +2192,10 @@ if get(findobj('Tag', 'ANALYZE_Trackset_trajHist_0'), 'Value');
     xlabel('Length [steps]');
     ylabel('Counts');
 end
+
+
+% If MSD or CDF plots are wanted
+if get(findobj('Tag', 'ANALYZE_Trackset_CDF_0'), 'Value') || get(findobj('Tag', 'ANALYZE_Trackset_MSD_0'), 'Value');
 
 % Make MSD plot(one for all trajectories)
 msdCell = cell(3, length(finalTraj));
@@ -2153,7 +2213,7 @@ for i = 1:length(finalTraj)
         sqDisplTotCell{1, dt} = [sqDisplTotCell{1, dt}; sqDispl];
   
         
-% Checking for an error that lets through steps loonger than the set value...        
+% Checking for an error that lets through steps longer than the set value...        
 % if (dt==1) && (~isempty(find(sqrt(sqDispl) > 400)))
 %     i
 %     return
@@ -2177,21 +2237,7 @@ for i = 1:length(finalTraj)
             msdY(dt,2) = std(sqDisplY); % std
             msdY(dt,3) = length(sqDisplY); % n
         end
-        
-        
-        
-%         % For the smallest timesteps save the av jumplength for the first
-%         % and second half of the trajectory.
-%         if dt == 1
-%         
-%            displ = sqrt(sqDispl);
-%            halfTrajs(i, 1) = mean(displ(1:floor(end/2)));
-%            halfTrajs(i, 2) = std(displ(1:floor(end/2)));
-%            halfTrajs(i, 3) = mean(displ(floor(end/2)+1:end));
-%            halfTrajs(i, 4) = std(displ(floor(end/2)+1:end));
-%             
-%         end
-        
+              
     end
     % Save the individual MSDs in a cell structure
     msdCell{1, i} = msd;
@@ -2202,23 +2248,9 @@ for i = 1:length(finalTraj)
     
 end
 
-% % Plot the half trajectories average steplengths
-% figure('Name', data.ANALYZE.filename,'NumberTitle','off');
-% diffHalfTrajs = halfTrajs(:, 1)-halfTrajs(:, 3);
-% diffHalfTrajs = diffHalfTrajs(find(diffHalfTrajs ~= 0));
-% plot(diffHalfTrajs, 'xr');
-% % errorbar([mean(halfTrajs(:, 1)) mean(halfTrajs(:, 3))], [std(halfTrajs(:, 1)) std(halfTrajs(:, 3))]./sqrt(length(halfTrajs(:, 1))), 'xr');
-% title('Steplength: 1st half - 2nd half');
-% xlabel('Trajectory #');
-% ylabel('1st half - 2nd half');
-% figure;
-% hist(diffHalfTrajs, 500);
-% title('Steplength: 1st half - 2nd half');
-% xlabel('1st half - 2nd half');
-% ylabel('Counts');
-        
 
-length(finalTraj)
+
+% length(finalTraj)
 
 % Make one general MSD list
 msdTot = [length(sqDisplTotCell), 3];
@@ -2242,32 +2274,32 @@ for dt = 1:length(sqDisplTotCell)
     
 end
 
-% Calculate diffusion constant from the 3 first points
-diffArr = [msdTot(1:2, 1)']./(1000^2);
-xArr = [1, 2];
-unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
-[p, S] = polyfit(xArr.*unitTime, diffArr, 1);
-diffOffset = p(2);
-diffCoeff = p(1)/4;
-
-if isequal(data.ANALYZE.aligned, 'Yes')
-    diffArr = [msdTotX(1:2, 1)']./(1000^2);
-    xArr = [1, 2];
-    unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
-    [pX, S] = polyfit(xArr.*unitTime, diffArr, 1);
-    diffOffsetX = pX(2);
-    diffCoeffX = pX(1)/2;
-    
-    diffArr = [msdTotY(1:2, 1)']./(1000^2);
-    xArr = [1, 2];
-    unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
-    [pY, S] = polyfit(xArr.*unitTime, diffArr, 1);
-    diffOffsetY = pY(2);
-    diffCoeffY = pY(1)/2;
-end
-
-% Plot the MSD if desired
+% Calculate diffusion constant from the 2 first points if MSD is desired
 if get(findobj('Tag', 'ANALYZE_Trackset_MSD_0'), 'Value');
+    diffArr = [msdTot(1:2, 1)']./(1000^2);
+    xArr = [1, 2];
+    unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
+    [p, S] = polyfit(xArr.*unitTime, diffArr, 1);
+    diffOffset = p(2);
+    diffCoeff = p(1)/4;
+    
+    if isequal(data.ANALYZE.aligned, 'Yes')
+        diffArr = [msdTotX(1:2, 1)']./(1000^2);
+        xArr = [1, 2];
+        unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
+        [pX, S] = polyfit(xArr.*unitTime, diffArr, 1);
+        diffOffsetX = pX(2);
+        diffCoeffX = pX(1)/2;
+        
+        diffArr = [msdTotY(1:2, 1)']./(1000^2);
+        xArr = [1, 2];
+        unitTime = str2double(get(findobj('Tag', 'ANALYZE_Trackset_timeStep_1'), 'String'))/1000; % Time between frames in ms
+        [pY, S] = polyfit(xArr.*unitTime, diffArr, 1);
+        diffOffsetY = pY(2);
+        diffCoeffY = pY(1)/2;
+    end
+    
+    % Plot the MSD if desired
     figure('Name', data.ANALYZE.filename,'NumberTitle','off');
     hold on
     xArr = find(msdTot(:, 1));
@@ -2436,7 +2468,7 @@ if get(findobj('Tag', 'ANALYZE_Trackset_CDF_0'), 'Value');
     
 end
 
-
+end
 
 % % Thing to plot only the first point in a Traj 
 % pos = zeros(2, length(finalTraj));
