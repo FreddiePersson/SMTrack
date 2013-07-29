@@ -36,6 +36,7 @@ function SMTrack(~,~,varargin)
 addpath(genpath([dir0 filesep '.' filesep 'Detect']))
 addpath(genpath([dir0 filesep '.' filesep 'Localize']))
 addpath(genpath([dir0 filesep '.' filesep 'Analyze']))
+addpath(genpath([dir0 filesep '.' filesep 'Tools']))
 addpath([dir0 filesep '.'])
 disp('Added local SMTrack paths')
 disp('---------------------')
@@ -211,7 +212,7 @@ function DetectButton(~,~,varargin)
     
 	% Execute sub-routine
     close(findobj('Tag','hDET'));
-    evalin('base', 'DetectMolecules()');
+    evalin('base', 'DetectMolecules_3()');
 	
 end
 
@@ -222,7 +223,7 @@ function DetectWLButton(~,~,varargin)
     
 	% Execute sub-routine
     close(findobj('Tag','hDET'));
-    evalin('base', 'DetectMoleculesWavelet()');
+    evalin('base', 'DetectMoleculesWavelet_3()');
 	
 end
 
@@ -233,7 +234,7 @@ function LocalizeButton(~,~,varargin)
 
     % Execute sub-routine
     close(findobj('Tag','hLOC'));
-    evalin('base', 'LocalizeMolecules()');
+    evalin('base', 'LocalizeMolecules_3()');
 
         
 end

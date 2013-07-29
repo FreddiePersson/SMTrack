@@ -233,7 +233,7 @@ function LocalizeButton(~,~,varargin)
 
     % Execute sub-routine
     close(findobj('Tag','hLOC'));
-    evalin('base', 'LocalizeMolecules()');
+    evalin('base', 'LocalizeMolecules_2()');
 
         
 end

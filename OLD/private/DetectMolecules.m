@@ -31,7 +31,7 @@
 %%%%%%%%%%%%%%%%%%
 
 
-function vargout = DetectMolecules3(varargin)
+function vargout = DetectMolecules(varargin)
 
 % Create main figure
 hFig = figure(...
@@ -45,9 +45,13 @@ hFig = figure(...
     'Resize','off',...
     'Colormap',hot);
 
-%Font name & size
-font = varargin{1};
-fontsize = varargin{2};
+    % Font and font size
+    font = 'Ariel';
+    fontsize = 13;
+    
+    if ispc || isunix 
+        fontsize = fontsize*(72/96); 
+    end
 
 %Draw all the panes etc
 drawContent(hFig, font, fontsize);

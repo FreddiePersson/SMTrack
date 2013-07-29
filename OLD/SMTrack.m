@@ -32,14 +32,6 @@
 function SMTrack(~,~,varargin)
 	clear all
     
-    dir0=pwd;
-addpath(genpath([dir0 filesep '.' filesep 'Detect']))
-addpath(genpath([dir0 filesep '.' filesep 'Localize']))
-addpath(genpath([dir0 filesep '.' filesep 'Analyze']))
-addpath([dir0 filesep '.'])
-disp('Added local SMTrack paths')
-disp('---------------------')
-    
 	exitButton;
     
     % Font and font size
@@ -102,7 +94,7 @@ function drawStartContent(hObject,varargin)
 	bh = 27;
 	
 	w = 10 + 150 + 10;
-	h = 10 + 6*(bh+10) + 10;
+	h = 10 + 5*(bh+10) + 10;
 	
 	pos = [0 0 w h];
 	set(hObject,'Position',pos);
@@ -121,18 +113,7 @@ function drawStartContent(hObject,varargin)
         'FontSize',fontsize,...
 		'String','DETECT',...
 		'Position',[10 h-1*(bh+10) bw bh],...
-		'Callback',{@DetectButton});
-    
-	% Detect molecules with wavelets
-	uicontrol(...
-		'Parent',hObject,...
-		'Units','pixels',...
-		'Style','pushbutton',...
-        'FontName', font ,...
-        'FontSize',fontsize,...
-		'String','DETECT Wavelets',...
-		'Position',[10 h-2*(bh+10) bw bh],...
-		'Callback',{@DetectWLButton});
+		'Callback',{@DetectButton, font, fontsize});
 	
 	% Localize detected molecules
 	uicontrol(...
@@ -142,8 +123,8 @@ function drawStartContent(hObject,varargin)
         'FontName', font ,...
         'FontSize',fontsize,...
 		'String','LOCALIZE',...
-		'Position',[10 h-3*(bh+10) bw bh],...
-		'Callback',{@LocalizeButton});
+		'Position',[10 h-2*(bh+10) bw bh],...
+		'Callback',{@LocalizeButton, font, fontsize});
 
     
 	% Analyze results
@@ -154,8 +135,8 @@ function drawStartContent(hObject,varargin)
         'FontName', font ,...
         'FontSize',fontsize,...
 		'String','ANALYZE',...
-		'Position',[10 h-4*(bh+10) bw bh],...
-		'Callback',{@AnalyzeButton});
+		'Position',[10 h-3*(bh+10) bw bh],...
+		'Callback',{@AnalyzeButton, font, fontsize});
     
     	% About
 	uicontrol(...
@@ -165,7 +146,7 @@ function drawStartContent(hObject,varargin)
         'FontName', font ,...
         'FontSize',fontsize,...
 		'String','About',...
-		'Position',[10 h-5*(bh+10) bw bh],...
+		'Position',[10 h-4*(bh+10) bw bh],...
 		'Callback',{@aboutButton,hObject});
     
 	% Exit
@@ -176,7 +157,7 @@ function drawStartContent(hObject,varargin)
         'FontName', font ,...
         'FontSize',fontsize,...
 		'String','Exit',...
-		'Position',[10 h-6*(bh+10) bw bh],...
+		'Position',[10 h-5*(bh+10) bw bh],...
 		'Callback',{@exitButton,hObject});
 	
 end
@@ -208,21 +189,11 @@ function DetectButton(~,~,varargin)
 
     close(findobj('Tag','hANA'));
     close(findobj('Tag','hLOC'));
-    
+
 	% Execute sub-routine
     close(findobj('Tag','hDET'));
-    evalin('base', 'DetectMolecules()');
-	
-end
-
-function DetectWLButton(~,~,varargin)
-
-    close(findobj('Tag','hANA'));
-    close(findobj('Tag','hLOC'));
-    
-	% Execute sub-routine
-    close(findobj('Tag','hDET'));
-    evalin('base', 'DetectMoleculesWavelet()');
+	%DetectMolecules_orig;
+    DetectMolecules3(varargin{1}, varargin{2});
 	
 end
 
@@ -233,7 +204,8 @@ function LocalizeButton(~,~,varargin)
 
     % Execute sub-routine
     close(findobj('Tag','hLOC'));
-    evalin('base', 'LocalizeMolecules()');
+   %LocalizeMolecules_orig;
+    LocalizeMolecules3(varargin{1}, varargin{2});
 
         
 end
@@ -245,7 +217,7 @@ function AnalyzeButton(~,~,varargin)
 
     % Execute sub-routine
     close(findobj('Tag','hANA'));
-    evalin('base', 'AnalyzeMolecules()');
+    AnalyzeMolecules(varargin{1}, varargin{2});
 
         
 end
