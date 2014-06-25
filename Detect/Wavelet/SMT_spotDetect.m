@@ -77,7 +77,7 @@ function [mask, n]=SMT_spotDetect(I, varargin)
 %% set and read options
 levels = 3;
 % neighbourhood = 9;
-plane = 0;
+plane = 2;
 do_display = false;
 do_multiscale = false;
 do_iter = false;

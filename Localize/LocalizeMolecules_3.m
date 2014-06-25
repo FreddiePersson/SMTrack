@@ -2097,12 +2097,18 @@ for i = 2:stackSize
     if i == 2
         contExp = expCell{i-1};
     else
+        % contExp is just the sumation of all exposed imageplanes to
+        % flatten the images
         contExp = imadd(contExp, expCell{i-1});
     end
 end
 
-contExp = contExp/(stackSize-1);
-contExp = contExp-mean(reshape(contExp, 1, []));
+% make ContExp it into the mean plane
+meanPlane = contExp/(stackSize-1);
+% Subtract the entire mean value from the mean plane to get a plane that
+% should be subtracted from all original image planes to flatten them but
+% keeping the image and stack means the same.
+flattener = meanPlane-mean(reshape(meanPlane, 1, []));
 
 
 % Reshape them to 1D arrays.
@@ -2110,7 +2116,8 @@ darkframe = reshape(darkframe, 1, []);
 
 exposures = [];
 for i = 1:stackSize-1
-    temp = expCell{i}-contExp;
+    % flatten the image
+    temp = expCell{i}-flattener;
     exposures = [exposures, reshape(temp, 1, [])];
 end
 
@@ -2140,7 +2147,7 @@ diffVariance = (std(diff)^2)/2;
 exp1 = reshape(expCell{1}, 1, []);
 exp2 = reshape(expCell{2}, 1, []);
 expMean = mean([exp1-baseline, exp2-baseline]);
-approxGain = 0.5 * diffVariance / expMean % The factor of 0.5 comes from the EMCCD excess noise function (approx sqrt(2))
+approxGain = 0.5 * expMean/diffVariance % The factor of 0.5 comes from the EMCCD excess noise function (approx sqrt(2))
 
 
 % Create the experimental PDF

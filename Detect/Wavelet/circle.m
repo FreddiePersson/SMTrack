@@ -6,5 +6,5 @@ function [phandl] = circle(x,y,r)
 ang=0:0.01:2*pi; 
 xp=r*cos(ang);
 yp=r*sin(ang);
-phandl = plot(x+xp,y+yp, '-w');
+phandl = plot(x+xp,y+yp, '-r');
 end
